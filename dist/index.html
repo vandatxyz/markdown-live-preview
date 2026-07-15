@@ -34,52 +34,120 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Markdown Live Preview</title>
-    <script type="module" crossorigin src="/assets/index-mLPbTfpz.js"></script>
+    <script type="module" crossorigin src="/assets/index-CUcjyBV4.js"></script>
   </head>
-
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-77C1GEG9C8"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-77C1GEG9C8');
-  </script>
 
   <body>
 
-    <header>
-        <div id="menu-items">
+    <div id="app-layout">
+      <!-- Sidebar -->
+      <div id="sidebar">
+        <div id="sidebar-header">
+          <span id="sidebar-title">Documents</span>
+          <button id="sidebar-new-btn" title="New document">+ New</button>
+        </div>
+        <div id="sidebar-list"></div>
+      </div>
+
+      <!-- Main area -->
+      <div id="main-area">
+        <header>
+          <div id="menu-items">
             <div><a href="/">Markdown Live Preview</a></div>
             <div id="reset-button"><a href="#">Reset</a></div>
             <div id="copy-button"><a href="#">Copy</a></div>
             <div id="export-button"><a href="#">Export PDF</a></div>
+            <div id="download-md-button"><a href="#">Download .md</a></div>
+            <button id="save-button" title="Save current document">💾 Save</button>
             <div id="sync-button">
               <input type="checkbox" id="sync-scroll-checkbox"><label for="sync-scroll-checkbox">Sync scroll</label>
               <span style="margin-left:12px;"><input type="checkbox" id="theme-checkbox"><label for="theme-checkbox">Dark mode</label></span>
             </div>
-        </div>
-        <div id="github"><a href="https://github.com/tanabe/markdown-live-preview"><img src="image/GitHub-Mark-Light-32px.webp"></a></div>
-    </header>
+          </div>
+        </header>
 
-    <div id="container" class="split-container">
-
-        <div id="edit" class="column editor-pane">
+        <div id="container" class="split-container">
+          <div id="edit" class="column editor-pane">
             <div id="editor-wrapper">
-                <div id="editor"></div>
+              <div id="editor"></div>
             </div>
-        </div>
+          </div>
 
-        <div id="split-divider" class="split-divider"></div>
+          <div id="split-divider" class="split-divider"></div>
 
-        <div id="preview" class="column preview-pane">
+          <div id="preview" class="column preview-pane">
             <div id="preview-wrapper">
-                <div id="output" class="content markdown-body"></div>
+              <div id="output" class="content markdown-body"></div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <footer></footer>
+
+    <script>
+      (function () {
+        var API_BASE = '/api/documents';
+
+        function getActiveName() {
+          var el = document.querySelector('.sidebar-item.active .sidebar-item-name');
+          var name = el && el.textContent ? el.textContent.trim() : '';
+          if (!name) return 'document.md';
+          return /\.md$/i.test(name) ? name : name + '.md';
+        }
+
+        function getActiveDocId() {
+          var h = window.location.hash;
+          return h && h.indexOf('#doc_') === 0 ? h.slice(1) : null;
+        }
+
+        function triggerDownload(content, filename) {
+          var blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        }
+
+        function downloadMd(event) {
+          if (event) event.preventDefault();
+          var filename = getActiveName();
+          var id = getActiveDocId();
+          if (!id) {
+            triggerDownload('', filename);
+            return;
+          }
+          // Fetch latest saved content from API (autosave keeps this current).
+          fetch(API_BASE + '/' + id, { headers: { 'Content-Type': 'application/json' } })
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (doc) {
+              triggerDownload(doc && doc.content ? doc.content : '', filename);
+            })
+            .catch(function () {
+              triggerDownload('', filename);
+            });
+        }
+
+        function wire() {
+          var btn = document.getElementById('download-md-button');
+          if (!btn) {
+            setTimeout(wire, 200);
+            return;
+          }
+          btn.addEventListener('click', downloadMd);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', wire);
+        } else {
+          wire();
+        }
+      })();
+    </script>
   </body>
 </html>

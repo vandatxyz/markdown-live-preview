@@ -10,22 +10,14 @@ clean:
 build:
 	npm run build
 
-.PHONY: preview
-preview:
-	npm run preview
-
 .PHONY: dev
 dev:
 	npm run dev
 
-.PHONY: serve-dist
-serve-dist:
-	npm run serve-dist
+.PHONY: start
+start:
+	npm run start
 
-.PHONY: build-serve
-build-serve:
-	npm run build-and-serve
-
-.PHONY: deploy
-deploy:
-	firebase deploy
+.PHONY: build-start
+build-start:
+	npm run build && npm run start

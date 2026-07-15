@@ -1,15 +1,15 @@
 {
   "name": "markdown-live-preview",
-  "version": "1.0.0",
-  "description": "[Markdown Live Preview](https://markdownlivepreview.com/) is a tiny web tool to preview Markdown formatted text.",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Markdown Live Preview with SQLite-backed multi-document support",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "serve-dist": "http-server dist -p 5001 -c-1",
-    "build-and-serve": "npm run build && npm run serve-dist"
+    "start": "node server.js",
+    "serve-dist": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -22,16 +22,17 @@
     "url": "https://github.com/tanabe/markdown-live-preview/issues"
   },
   "homepage": "https://github.com/tanabe/markdown-live-preview#readme",
-  "devDependencies": {
-    "http-server": "^14.1.1",
-    "vite": "^6.4.2"
-  },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "cors": "^2.8.5",
     "dompurify": "^3.4.0",
+    "express": "^4.22.2",
     "github-markdown-css": "^5.8.1",
     "marked": "^15.0.7",
     "mermaid": "^11.15.0",
-    "monaco-editor": "^0.52.2",
-    "storehouse-js": "github:tanabe/Storehouse-js"
+    "monaco-editor": "^0.52.2"
+  },
+  "devDependencies": {
+    "vite": "^6.4.2"
   }
 }
