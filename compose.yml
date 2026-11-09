@@ -1,0 +1,13 @@
+services:
+  markdown-live-preview:
+    build:
+      context: .
+    container_name: markdown-live-preview
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      NODE_ENV: production
+      PORT: 3000
